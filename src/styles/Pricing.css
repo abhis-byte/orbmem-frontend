@@ -1,0 +1,143 @@
+/* ===============================
+   PRICING PAGE
+================================ */
+
+.pricing-page {
+  min-height: 100vh;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.pricing-page h1 {
+  font-size: 42px;
+  margin-bottom: 8px;
+}
+
+.pricing-page .subtitle {
+  font-size: 16px;
+  color: #aaa;
+  margin-bottom: 50px;
+}
+
+/* ===============================
+   PLANS CONTAINER
+================================ */
+
+.plans {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+/* ===============================
+   PLAN CARD (ALL HIGHLIGHTED)
+================================ */
+
+.plan {
+  width: 300px;
+  background: linear-gradient(180deg, #101010, #060606);
+  border-radius: 18px;
+  padding: 34px 26px;
+
+  /* 🔥 HIGHLIGHT FOR ALL */
+  border: 1px solid rgba(79, 195, 247, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(79, 195, 247, 0.15),
+    0 30px 80px rgba(0, 0, 0, 0.9),
+    0 0 60px rgba(79, 195, 247, 0.18);
+
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.plan:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 0 0 1px rgba(79, 195, 247, 0.35),
+    0 40px 110px rgba(0, 0, 0, 0.95),
+    0 0 90px rgba(79, 195, 247, 0.35);
+}
+
+/* ===============================
+   TEXT
+================================ */
+
+.plan h2 {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.price {
+  font-size: 44px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.period {
+  font-size: 14px;
+  color: #9a9a9a;
+  margin-bottom: 22px;
+}
+
+/* ===============================
+   FEATURES
+================================ */
+
+.plan ul {
+  list-style: none;
+  padding: 0;
+  margin: 26px 0 30px;
+}
+
+.plan ul li {
+  font-size: 14px;
+  margin: 10px 0;
+  color: #ddd;
+}
+
+/* ===============================
+   BUTTON
+================================ */
+
+.plan button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #4fc3f7, #1976d2);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plan button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 46px rgba(79, 195, 247, 0.55);
+}
+
+/* ===============================
+   FOOTNOTE
+================================ */
+
+.footnote {
+  margin-top: 40px;
+  font-size: 13px;
+  color: #666;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 768px) {
+  .pricing-page h1 {
+    font-size: 34px;
+  }
+
+  .plan {
+    width: 100%;
+    max-width: 360px;
+  }
+}

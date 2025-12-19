@@ -1,0 +1,78 @@
+.pricing-page {
+  min-height: 100vh;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.pricing-page h1 {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #aaa;
+  margin-bottom: 50px;
+}
+
+.plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 32px;
+  max-width: 900px;
+  margin: auto;
+}
+
+/* Both cards use the “highlight” look */
+.plan {
+  background: linear-gradient(180deg, #111, #080808);
+  border-radius: 16px;
+  padding: 36px 28px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #0084ff; /* highlight border for all */
+}
+
+/* You can even delete .plan.highlight in HTML & CSS now */
+.plan:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.9);
+}
+
+.price {
+  font-size: 42px;
+  font-weight: 700;
+  margin: 20px 0 4px;
+}
+
+.period {
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.plan ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 28px;
+}
+
+.plan li {
+  margin: 10px 0;
+  color: #ddd;
+}
+
+.plan button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #4fc3f7, #1976d2);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.footnote {
+  margin-top: 40px;
+  color: #666;
+  font-size: 13px;
+}
