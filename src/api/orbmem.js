@@ -35,7 +35,9 @@ export async function getApiKey() {
   const data = await res.json();
 
   // backend returns { keys: [...] }
-  return data.keys?.[0] || null;
+  return Array.isArray(data.keys) && data.keys.length > 0
+  ? data.keys[0]
+  : null;
 }
 
 /**

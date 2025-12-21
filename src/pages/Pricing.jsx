@@ -40,7 +40,7 @@ export default function Pricing() {
       </div>
 
       <p className="footnote">
-        *Fair usage policy applies. Abuse leads to suspension.
+        Fair usage policy applies. Abuse leads to suspension.
       </p>
     </div>
   );

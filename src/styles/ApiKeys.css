@@ -103,7 +103,7 @@
 }
 
 .sad-face {
-  font-size: 96px;
+  font-size: 150px;
   margin-bottom: 16px;
   animation: floatSad 2.8s ease-in-out infinite;
 }
@@ -198,3 +198,4 @@
 .btn-danger:hover {
   background: #ff1744;
 }
+

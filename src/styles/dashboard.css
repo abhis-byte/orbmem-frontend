@@ -2,7 +2,7 @@
    DASHBOARD LAYOUT
 ========================= */
 .dashboard {
-  padding: 48px 40px;
+  padding: 40px 24px;
   max-width: 1200px;
   margin: 0 auto;
   color: #ffffff;
@@ -15,7 +15,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  gap: 16px;
+  margin-bottom: 36px;
 }
 
 .dashboard-header h2 {
@@ -23,11 +24,12 @@
   font-weight: 600;
 }
 
-/* Header Get API Key button */
+/* 🔑 Get API Key button (desktop default) */
 .dashboard-header .btn-primary {
-  padding: 10px 18px;
-  font-size: 14px;
+  padding: 8px 16px;
+  font-size: 13px;
   border-radius: 8px;
+  white-space: nowrap;
 }
 
 /* =========================
@@ -40,7 +42,7 @@
 
 .docs h1 {
   font-size: 28px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .docs h2 {
@@ -66,7 +68,7 @@
 /* Code blocks */
 .docs pre {
   background: linear-gradient(180deg, #0f0f0f, #050505);
-  padding: 18px;
+  padding: 16px;
   border-radius: 10px;
   margin-top: 14px;
   font-size: 14px;
@@ -87,8 +89,8 @@
    DASHBOARD ACCESS / CTA
 ========================= */
 .dashboard-access {
-  margin-top: 80px;
-  padding: 40px;
+  margin-top: 70px;
+  padding: 32px;
   max-width: 900px;
   border-radius: 16px;
   background: linear-gradient(180deg, #0f0f0f, #070707);
@@ -105,10 +107,10 @@
   margin-bottom: 24px;
 }
 
-/* CTA button (FINAL Get API Key) */
+/* CTA button */
 .dashboard-access .primary {
-  padding: 14px 28px;
-  font-size: 16px;
+  padding: 12px 24px;
+  font-size: 15px;
   font-weight: 600;
   border-radius: 10px;
   border: none;
@@ -130,64 +132,13 @@
   color: #777;
 }
 
-.dashboard {
-  padding: 40px;
-  max-width: 1100px;
-  margin: auto;
-}
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 40px;
-}
-
-.dashboard-header h2 {
-  font-size: 28px;
-}
-
-.dashboard-header button {
-  padding: 12px 22px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #1e90ff, #00c6ff);
-  border: none;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.docs {
-  line-height: 1.7;
-}
-
-.docs h1 {
-  font-size: 36px;
-}
-
-.docs h2 {
-  margin-top: 40px;
-}
-
-.docs pre {
-  background: #0d0d0d;
-  padding: 18px;
-  border-radius: 12px;
-  overflow-x: auto;
-  margin-top: 16px;
-}
-
-.final-note {
-  margin-top: 50px;
-  font-size: 20px;
-  color: #4fc3f7;
-}
-
-/* API KEY CARD */
+/* =========================
+   API KEY CARD
+========================= */
 .api-card {
   margin-top: 50px;
   background: #111;
-  padding: 30px;
+  padding: 28px;
   border-radius: 16px;
   box-shadow: 0 30px 80px rgba(0,0,0,0.7);
   position: relative;
@@ -200,25 +151,118 @@
   padding: 10px;
   border-radius: 8px;
   overflow-x: auto;
+  font-size: 13px;
 }
 
-.key-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* =========================
+   📱 MOBILE RESPONSIVE
+========================= */
+@media (max-width: 640px) {
+  .dashboard {
+    padding: 28px 16px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .dashboard-header h2 {
+    font-size: 20px;
+  }
+
+  /* 🔽 SMALL BUTTON ON MOBILE */
+  .dashboard-header .btn-primary {
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+
+  .docs h1 {
+    font-size: 24px;
+  }
+
+  .docs h2 {
+    font-size: 18px;
+  }
+
+  .docs pre {
+    font-size: 13px;
+    padding: 14px;
+  }
+
+  .dashboard-access {
+    padding: 24px;
+  }
+
+  .dashboard-access h1 {
+    font-size: 22px;
+  }
+
+  .dashboard-access .primary {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .api-card {
+    padding: 22px;
+  }
 }
 
-.icon-btn {
-  background: transparent;
-  border: none;
-  cursor: pointer;
+/* =========================
+   PREMIUM SCROLLBAR
+========================= */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #4fc3f7 #0b0b0b;
 }
 
-.copied {
-  position: absolute;
-  top: 10px;
-  right: 16px;
-  font-size: 12px;
-  color: #4caf50;
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(180deg, #0b0b0b, #050505);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    135deg,
+    #4fc3f7,
+    #1976d2
+  );
+  border-radius: 10px;
+  border: 2px solid #050505; /* gives floating feel */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    135deg,
+    #6ad6ff,
+    #2196f3
+  );
+}
+
+/* =========================
+   SCROLLBAR FOR CODE BLOCKS
+========================= */
+.docs pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+.docs pre::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 8px;
+}
+
+.docs pre::-webkit-scrollbar-thumb:hover {
+  background: #4fc3f7;
 }
 

@@ -5,6 +5,7 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   signInWithPopup,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth, googleProvider } from "../auth/firebase";
 
@@ -23,6 +24,11 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // 🔐 RESET PASSWORD STATE
+  const [resetMsg, setResetMsg] = useState("");
+  const [resetError, setResetError] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+
   /* =========================
      EMAIL / PASSWORD AUTH
   ========================= */
@@ -37,22 +43,17 @@ export default function Login() {
 
     try {
       if (isSignup) {
-        // ✅ SIGN UP
         const cred = await createUserWithEmailAndPassword(
           auth,
           email,
           password
         );
 
-        // ✅ send verification
         await sendEmailVerification(cred.user);
-
-        // ✅ DO NOT sign out here
         navigate("/verify-email", { replace: true });
         return;
       }
 
-      // ✅ LOGIN
       const cred = await signInWithEmailAndPassword(auth, email, password);
 
       if (!cred.user.emailVerified) {
@@ -65,6 +66,32 @@ export default function Login() {
       setError(err.message.replace("Firebase:", ""));
     } finally {
       setLoading(false);
+    }
+  };
+
+  /* =========================
+     FORGOT PASSWORD
+  ========================= */
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setResetError("Enter your email to reset password");
+      return;
+    }
+
+    try {
+      setResetLoading(true);
+      setResetError("");
+      setResetMsg("");
+
+      await sendPasswordResetEmail(auth, email);
+
+      setResetMsg(
+        "Password reset email sent. Check your inbox (and spam)."
+      );
+    } catch (err) {
+      setResetError(err.message.replace("Firebase:", ""));
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -121,6 +148,23 @@ export default function Login() {
             <img src={showPassword ? eyeOpen : eyeClosed} alt="" />
           </button>
         </div>
+
+        {/* 🔑 FORGOT PASSWORD */}
+        {!isSignup && (
+          <div className="forgot-row">
+            <button
+              type="button"
+              className="forgot-btn"
+              onClick={handleForgotPassword}
+              disabled={resetLoading}
+            >
+              {resetLoading ? "Sending…" : "Forgot password?"}
+            </button>
+          </div>
+        )}
+
+        {resetMsg && <p className="reset-success">{resetMsg}</p>}
+        {resetError && <p className="reset-error">{resetError}</p>}
 
         {/* PRIMARY */}
         <button

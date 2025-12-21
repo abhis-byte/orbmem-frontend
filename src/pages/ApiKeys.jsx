@@ -7,9 +7,10 @@ export default function ApiKeys() {
   const [loading, setLoading] = useState(true);
   const [apiKey, setApiKey] = useState(null);
   const [newKey, setNewKey] = useState(null);
+  // ✅ State for copy feedback
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    // 🔥 CHECK ONE-TIME KEY
     const raw = sessionStorage.getItem("orbmem_new_api_key");
     if (raw) {
       setNewKey(raw);
@@ -32,6 +33,14 @@ export default function ApiKeys() {
     load();
   }, []);
 
+  // ✅ Function to handle copy and show feedback
+  const handleCopy = () => {
+    navigator.clipboard.writeText(newKey);
+    setCopied(true);
+    // Reset the "Copied" message after 2 seconds
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   if (loading) {
     return (
       <div className="api-page">
@@ -40,7 +49,6 @@ export default function ApiKeys() {
     );
   }
 
-  /* 🔴 FULL SCREEN SECURITY WARNING */
   if (newKey) {
     return (
       <div className="key-once-screen">
@@ -54,19 +62,24 @@ export default function ApiKeys() {
 
           <code className="full-key">{newKey}</code>
 
-          <button
-            className="btn-primary"
-            onClick={() => navigator.clipboard.writeText(newKey)}
-          >
-            Copy API Key
-          </button>
+          <div className="button-group">
+            <button
+              className={`btn-primary ${copied ? "copied" : ""}`}
+              onClick={handleCopy}
+            >
+              {copied ? "✅ Key Copied!" : "Copy API Key"}
+            </button>
 
-          <button
-            className="btn-danger"
-            onClick={() => window.location.reload()}
-          >
-            OK, I Understand
-          </button>
+            <button
+              className="btn-danger"
+              onClick={() => window.location.reload()}
+            >
+              OK, I Understand
+            </button>
+          </div>
+          
+          {/* Optional: Floating toast message */}
+          {copied && <div className="copy-toast">Copied to clipboard!</div>}
         </div>
       </div>
     );
@@ -83,7 +96,7 @@ export default function ApiKeys() {
         <ApiKeyCard apiKey={apiKey} />
       ) : (
         <div className="empty-api animate-sad">
-          <div className="sad-face">:(</div>
+          <div className="sad-face">☹</div>
           <h3>No API keys found</h3>
         </div>
       )}

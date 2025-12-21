@@ -10,6 +10,18 @@ import Payment from "./pages/Payment";
 import ApiKeys from "./pages/ApiKeys";
 import Navbar from "./components/Navbar";
 
+// ✅ 1. Reusable Security Wrapper
+const ProtectedRoute = ({ user, children, requireVerification = true }) => {
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (requireVerification && !user.emailVerified) {
+    return <Navigate to="/verify-email" replace />;
+  }
+
+  return children;
+};
 
 export default function App() {
   const { user, ready } = useAuth();
@@ -23,28 +35,28 @@ export default function App() {
     );
   }
 
+  const isAuthed = !!user;
+
   return (
     <BrowserRouter>
-      {/* ✅ Navbar renders ONLY when user exists */}
       <Navbar user={user} />
 
       <Routes>
-        {/* ---------- PUBLIC ---------- */}
+        {/* ---------- PUBLIC ROUTES ---------- */}
         <Route
           path="/"
-          element={user ? <Navigate to="/dashboard" replace /> : <Landing />}
+          element={isAuthed ? <Navigate to="/dashboard" replace /> : <Landing />}
         />
-
         <Route
           path="/login"
-          element={user ? <Navigate to="/dashboard" replace /> : <Login />}
+          element={isAuthed ? <Navigate to="/dashboard" replace /> : <Login />}
         />
 
-        {/* ---------- VERIFY EMAIL ---------- */}
+        {/* ---------- VERIFICATION PAGE ---------- */}
         <Route
           path="/verify-email"
           element={
-            !user ? (
+            !isAuthed ? (
               <Navigate to="/login" replace />
             ) : user.emailVerified ? (
               <Navigate to="/dashboard" replace />
@@ -54,43 +66,42 @@ export default function App() {
           }
         />
 
-        {/* ---------- DASHBOARD ---------- */}
+        {/* ---------- PROTECTED ROUTES (Full Security) ---------- */}
         <Route
           path="/dashboard"
           element={
-            !user ? (
-              <Navigate to="/login" replace />
-            ) : !user.emailVerified ? (
-              <Navigate to="/verify-email" replace />
-            ) : (
+            <ProtectedRoute user={user}>
               <Dashboard />
-            )
+            </ProtectedRoute>
           }
         />
 
-        {/* ---------- API KEYS ---------- */}
         <Route
           path="/api-keys"
           element={
-            !user ? (
-              <Navigate to="/login" replace />
-            ) : !user.emailVerified ? (
-              <Navigate to="/verify-email" replace />
-            ) : (
+            <ProtectedRoute user={user}>
               <ApiKeys />
-            )
+            </ProtectedRoute>
           }
         />
 
-        {/* ---------- BILLING ---------- */}
+        {/* Pricing/Payment usually only require login, not necessarily verification */}
         <Route
           path="/pricing"
-          element={!user ? <Navigate to="/login" replace /> : <Pricing />}
+          element={
+            <ProtectedRoute user={user} requireVerification={false}>
+              <Pricing />
+            </ProtectedRoute>
+          }
         />
-
+        
         <Route
           path="/payment"
-          element={!user ? <Navigate to="/login" replace /> : <Payment />}
+          element={
+            <ProtectedRoute user={user} requireVerification={false}>
+              <Payment />
+            </ProtectedRoute>
+          }
         />
 
         {/* ---------- FALLBACK ---------- */}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../auth/firebase";
 import orbmemLogo from "../assets/orbmem-dark.png";
@@ -21,11 +21,22 @@ export default function Navbar({ user }) {
 
   return (
     <>
-      {/* ===== NAVBAR ===== */}
-      <nav className="nav">
+      {/* 1. Transparent Backdrop to close dropdown when clicking anywhere */}
+      {open && (
+        <div 
+          className="dropdown-overlay" 
+          onClick={() => setOpen(false)} 
+        />
+      )}
+
+      {/* ===== NAVBAR (Fixed to top) ===== */}
+      <nav className="nav fixed-nav">
         <div
           className="brand"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => {
+            setOpen(false);
+            navigate("/dashboard");
+          }}
           style={{ cursor: "pointer" }}
         >
           <img src={orbmemLogo} alt="Orbmem" className="logo" />
@@ -34,59 +45,53 @@ export default function Navbar({ user }) {
 
         <div className="nav-right">
           <div
-            className="avatar"
+            className={`avatar ${open ? "active" : ""}`}
             title={user.email}
             onClick={() => setOpen((v) => !v)}
           >
             {user.email[0].toUpperCase()}
           </div>
+
+          {/* ===== DROPDOWN (Inside nav-right for relative positioning) ===== */}
+          {open && (
+            <div className="dropdown slide-up">
+              <div className="dropdown-email">{user.email}</div>
+
+              <button
+                className="dropdown-btn"
+                onClick={() => {
+                  setOpen(false);
+                  navigate("/api-keys");
+                }}
+              >
+                API Keys
+              </button>
+
+              <button
+                className="dropdown-btn danger"
+                onClick={() => {
+                  setOpen(false);
+                  setConfirmLogout(true);
+                }}
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </nav>
-
-      {/* ===== DROPDOWN ===== */}
-      {open && (
-        <div className="dropdown">
-          <div className="dropdown-email">{user.email}</div>
-
-          <button
-            className="dropdown-btn"
-            onClick={() => {
-              setOpen(false);
-              navigate("/api-keys");
-            }}
-          >
-            API Keys
-          </button>
-
-          <button
-            className="dropdown-btn danger"
-            onClick={() => {
-              setOpen(false);
-              setConfirmLogout(true);
-            }}
-          >
-            Logout
-          </button>
-        </div>
-      )}
 
       {/* ===== LOGOUT CONFIRM MODAL ===== */}
       {confirmLogout && (
         <div className="modal-backdrop">
           <div className="modal-card slide-up">
             <h3>Log out?</h3>
-            <p>
-              Are you sure you want to log out of <b>Orbmem</b>?
-            </p>
+            <p>Are you sure you want to log out of <b>Orbmem</b>?</p>
 
             <div className="modal-actions">
-              <button
-                className="btn-outline"
-                onClick={() => setConfirmLogout(false)}
-              >
+              <button className="btn-outline" onClick={() => setConfirmLogout(false)}>
                 Cancel
               </button>
-
               <button className="btn-danger" onClick={handleLogout}>
                 Logout
               </button>
@@ -94,6 +99,9 @@ export default function Navbar({ user }) {
           </div>
         </div>
       )}
+      
+      {/* Spacer to prevent content from hiding under the fixed nav */}
+      <div className="nav-spacer"></div>
     </>
   );
 }

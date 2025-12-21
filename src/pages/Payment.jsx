@@ -1,18 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import "../styles/Payment.css";
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = import.meta.env.VITE_ORBMEM_API_BASE;
 
 export default function Payment() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { user, ready } = useAuth();
 
-  const plan = params.get("plan") || "basic";
+  const [firebaseToken, setFirebaseToken] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Load Razorpay script once
+  const plan = params.get("plan") || "monthly";
+
+  // --------------------------------------------------
+  // LOAD RAZORPAY SCRIPT (ONCE)
+  // --------------------------------------------------
   useEffect(() => {
     if (window.Razorpay) return;
 
@@ -22,25 +27,36 @@ export default function Payment() {
     document.body.appendChild(script);
   }, []);
 
-  const handlePayment = async () => {
-    if (!ready) return;
+  // --------------------------------------------------
+  // FETCH FIREBASE TOKEN ONCE (CRITICAL FIX)
+  // --------------------------------------------------
+  useEffect(() => {
+    if (!user) return;
 
-    if (!user) {
-      navigate("/login");
-      return;
-    }
+    user
+      .getIdToken(false) // ❌ DO NOT FORCE REFRESH
+      .then(setFirebaseToken)
+      .catch(() => {
+        alert("Authentication expired. Please login again.");
+        navigate("/login");
+      });
+  }, [user, navigate]);
+
+  // --------------------------------------------------
+  // HANDLE PAYMENT
+  // --------------------------------------------------
+  const handlePayment = async () => {
+    if (!ready || !user || !firebaseToken) return;
+
+    setLoading(true);
 
     try {
-      // 1️⃣ Firebase token
-      const token = await user.getIdToken(true);
-
-      // 2️⃣ Create Razorpay order
-      // FIX: Added backticks (``) to the fetch URL
+      // 1️⃣ CREATE ORDER
       const res = await fetch(`${API_BASE}/v1/payments/create-order`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Firebase-Token": token,
+          "X-Firebase-Token": firebaseToken, // ✅ SAME TOKEN
         },
         body: JSON.stringify({ plan }),
       });
@@ -49,7 +65,7 @@ export default function Payment() {
 
       const order = await res.json();
 
-      // 3️⃣ Razorpay checkout
+      // 2️⃣ OPEN RAZORPAY
       const options = {
         key: order.razorpay_key,
         amount: order.amount,
@@ -58,16 +74,15 @@ export default function Payment() {
         description: "API Key Subscription",
         order_id: order.order_id,
 
-        handler: async function (response) {
-          // 4️⃣ Verify payment
-          // FIX: Added backticks (``) to the verification URL
+        handler: async (response) => {
+          // 3️⃣ VERIFY PAYMENT (SAME TOKEN)
           const verifyRes = await fetch(
             `${API_BASE}/v1/payments/verify`,
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "X-Firebase-Token": token,
+                "X-Firebase-Token": firebaseToken,
               },
               body: JSON.stringify(response),
             }
@@ -80,13 +95,10 @@ export default function Payment() {
 
           const data = await verifyRes.json();
 
-          // 🔐 STORE FULL KEY (ONE TIME)
-          sessionStorage.setItem(
-            "orbmem_new_api_key",
-            data.api_key
-          );
+          // 🔐 STORE RAW KEY (ONE TIME)
+          sessionStorage.setItem("orbmem_new_api_key", data.api_key);
 
-          navigate("/api-keys");
+          navigate("/api-keys", { replace: true });
         },
 
         prefill: {
@@ -105,11 +117,12 @@ export default function Payment() {
         },
       };
 
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
+      new window.Razorpay(options).open();
     } catch (err) {
       console.error(err);
       alert("Payment failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -123,9 +136,9 @@ export default function Payment() {
       <button
         className="btn-primary"
         onClick={handlePayment}
-        disabled={!ready}
+        disabled={!ready || !firebaseToken || loading}
       >
-        Pay &amp; Generate API Key
+        {loading ? "Processing…" : "Pay & Generate API Key"}
       </button>
     </div>
   );
