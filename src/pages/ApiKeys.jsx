@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
-import { getApiKey } from "../api/orbmem";
 import ApiKeyCard from "../components/ApiKeyCard";
 import "../styles/ApiKeys.css";
+import {
+  getApiKey,
+  revokeApiKey,
+  regenerateApiKey,
+} from "../api/orbmem";
 
 export default function ApiKeys() {
   const [loading, setLoading] = useState(true);
   const [apiKey, setApiKey] = useState(null);
   const [newKey, setNewKey] = useState(null);
-  // ✅ State for copy feedback
   const [copied, setCopied] = useState(false);
 
+  /* ------------------------------------
+     INITIAL LOAD / ONE-TIME KEY CHECK
+  ------------------------------------ */
   useEffect(() => {
     const raw = sessionStorage.getItem("orbmem_new_api_key");
     if (raw) {
@@ -23,7 +29,8 @@ export default function ApiKeys() {
       try {
         const res = await getApiKey();
         setApiKey(res);
-      } catch {
+      } catch (err) {
+        console.error("Failed to load API key", err);
         setApiKey(null);
       } finally {
         setLoading(false);
@@ -33,14 +40,51 @@ export default function ApiKeys() {
     load();
   }, []);
 
-  // ✅ Function to handle copy and show feedback
+  /* ------------------------------------
+     HELPERS
+  ------------------------------------ */
+  const refreshKeys = async () => {
+    setLoading(true);
+    try {
+      const res = await getApiKey();
+      setApiKey(res);
+    } catch {
+      setApiKey(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRevoke = async () => {
+    try {
+      await revokeApiKey();
+      setApiKey(null); // immediate UI feedback
+    } catch (err) {
+      console.error("Revoke failed", err);
+      alert("Failed to revoke API key. Please try again.");
+    }
+  };
+
+  const handleRegenerate = async () => {
+    try {
+      await regenerateApiKey();
+      // new key is already stored in sessionStorage
+      window.location.reload(); // intentional + safe here
+    } catch (err) {
+      console.error("Regenerate failed", err);
+      alert("Failed to regenerate API key. Please try again.");
+    }
+  };
+
   const handleCopy = () => {
     navigator.clipboard.writeText(newKey);
     setCopied(true);
-    // Reset the "Copied" message after 2 seconds
     setTimeout(() => setCopied(false), 2000);
   };
 
+  /* ------------------------------------
+     LOADING
+  ------------------------------------ */
   if (loading) {
     return (
       <div className="api-page">
@@ -49,6 +93,9 @@ export default function ApiKeys() {
     );
   }
 
+  /* ------------------------------------
+     ONE-TIME KEY SCREEN
+  ------------------------------------ */
   if (newKey) {
     return (
       <div className="key-once-screen">
@@ -67,7 +114,7 @@ export default function ApiKeys() {
               className={`btn-primary ${copied ? "copied" : ""}`}
               onClick={handleCopy}
             >
-              {copied ? "✅ Key Copied!" : "Copy API Key"}
+              {copied ? "Key Copied!" : "Copy API Key"}
             </button>
 
             <button
@@ -77,14 +124,16 @@ export default function ApiKeys() {
               OK, I Understand
             </button>
           </div>
-          
-          {/* Optional: Floating toast message */}
-          {copied && <div className="copy-toast">Copied to clipboard!</div>}
+
+          {copied && <div className="copy-toast"></div>}
         </div>
       </div>
     );
   }
 
+  /* ------------------------------------
+     MAIN PAGE
+  ------------------------------------ */
   return (
     <div className="api-page fade-in">
       <h1>Your API Keys</h1>
@@ -93,7 +142,11 @@ export default function ApiKeys() {
       </p>
 
       {apiKey ? (
-        <ApiKeyCard apiKey={apiKey} />
+        <ApiKeyCard
+          apiKey={apiKey}
+          onRevoke={handleRevoke}
+          onRegenerate={handleRegenerate}
+        />
       ) : (
         <div className="empty-api animate-sad">
           <div className="sad-face">☹</div>

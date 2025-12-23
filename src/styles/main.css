@@ -531,10 +531,11 @@ button {
 .modal-card {
   width: 340px;
   background: linear-gradient(180deg, #0f0f0f, #050505);
-  border-radius: 14px;
+  border-radius: 20px; /* Slightly rounder card to match pills */
   padding: 26px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
   text-align: center;
+  border: 1px solid #222;
 }
 
 .modal-card h3 {
@@ -550,37 +551,43 @@ button {
 .modal-actions {
   display: flex;
   gap: 12px;
-  justify-content: space-between;
+  /* flex: 1 on children makes them equal width automatically */
 }
 
-/* Buttons */
-.btn-outline {
+/* Base style for both buttons to ensure they match size perfectly */
+.modal-actions button {
   flex: 1;
+  height: 44px;         /* Uniform height */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px; /* ✅ PILL SHAPE */
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-outline {
   background: transparent;
   border: 1px solid #333;
   color: #ccc;
-  padding: 10px;
-  border-radius: 8px;
-  cursor: pointer;
 }
 
 .btn-outline:hover {
   background: #111;
+  border-color: #444;
 }
 
 .btn-danger {
-  flex: 1;
   background: linear-gradient(135deg, #ff5252, #ff1744);
   border: none;
   color: white;
-  padding: 10px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
 }
 
 .btn-danger:hover {
   opacity: 0.9;
+  transform: translateY(-1px); /* Subtle lift on hover */
 }
 
 /* Ghost button already used in navbar */
