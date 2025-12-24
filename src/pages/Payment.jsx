@@ -3,7 +3,11 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import "../styles/Payment.css";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+/**
+ * 🔥 SINGLE SOURCE OF TRUTH
+ * NO env vars, NO duplication
+ */
+const API_BASE = "https://orbmem.onrender.com/v1";
 
 export default function Payment() {
   const [params] = useSearchParams();
@@ -35,7 +39,7 @@ export default function Payment() {
       navigate("/login");
       throw new Error("User not authenticated");
     }
-    return await user.getIdToken(true); // force refresh
+    return await user.getIdToken(true);
   };
 
   /* --------------------------------------------------
@@ -49,51 +53,39 @@ export default function Payment() {
 
     let order = null;
     let attempts = 0;
-    const maxAttempts = 15;
+    const maxAttempts = 10;
 
     /* ---------- CREATE ORDER ---------- */
     while (attempts < maxAttempts) {
       try {
         const token = await getFreshToken();
 
-        const res = await fetch(`${API_BASE}/v1/payments/create-order`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Firebase-Token": token,
-          },
-          body: JSON.stringify({ plan }),
-        });
+        const res = await fetch(
+          `${API_BASE}/payments/create-order`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Firebase-Token": token,
+            },
+            body: JSON.stringify({ plan }),
+          }
+        );
 
         if (res.ok) {
           order = await res.json();
           break;
         }
-
-        if ([400, 401, 403].includes(res.status)) {
-          throw new Error("AUTH_ERROR");
-        }
       } catch (err) {
-        console.log(`SYNC_RETRY_${attempts + 1}`);
+        console.log("RETRY_CREATE_ORDER", attempts + 1);
       }
 
       attempts++;
-      if (!order && attempts < maxAttempts) {
-        await new Promise((r) => setTimeout(r, 6000));
-      }
+      await new Promise((r) => setTimeout(r, 4000));
     }
 
     if (!order) {
-      alert(
-        "Gateway initialization timed out.\n\nPlease retry once more."
-      );
-      setLoading(false);
-      setStatus("PAY & GENERATE API KEY");
-      return;
-    }
-
-    if (!window.Razorpay) {
-      alert("Payment system still loading. Please try again.");
+      alert("Gateway initialization failed. Please retry.");
       setLoading(false);
       setStatus("PAY & GENERATE API KEY");
       return;
@@ -116,27 +108,33 @@ export default function Payment() {
         try {
           const token = await getFreshToken();
 
-          const verifyRes = await fetch(`${API_BASE}/v1/payments/verify`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Firebase-Token": token,
-            },
-            body: JSON.stringify(response),
-          });
+          const verifyRes = await fetch(
+            `${API_BASE}/payments/verify`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Firebase-Token": token,
+              },
+              body: JSON.stringify(response),
+            }
+          );
 
-          if (!verifyRes.ok) throw new Error("VERIFY_TIMEOUT");
+          if (!verifyRes.ok) throw new Error();
 
           const data = await verifyRes.json();
 
-          // One-time reveal
-          sessionStorage.setItem("orbmem_new_api_key", data.api_key);
+          // 🔐 one-time reveal
+          sessionStorage.setItem(
+            "orbmem_new_api_key",
+            data.api_key
+          );
 
           navigate("/api-keys", { replace: true });
         } catch {
           alert(
-            "Payment successful.\n\n" +
-            "Verification is completing securely in the background.\n" +
+            "Payment successful.\n" +
+            "Verification completing in background.\n" +
             "Your API key will appear shortly."
           );
           navigate("/api-keys", { replace: true });
@@ -163,7 +161,9 @@ export default function Payment() {
   return (
     <div className="payment-page">
       <h1>SECURE CHECKOUT</h1>
-      <p className="subtitle">Encrypted transaction & key provisioning</p>
+      <p className="subtitle">
+        Encrypted transaction & key provisioning
+      </p>
 
       <button
         className="btn-primary"
@@ -172,20 +172,6 @@ export default function Payment() {
       >
         {status}
       </button>
-
-      {loading && status === "INITIALIZING GATEWAY..." && (
-        <div className="secure-status-container">
-          <div className="status-icon"></div>
-          <p className="status-label">
-            STATUS: INITIALIZING SECURE GATEWAY
-          </p>
-          <p className="status-details">
-            Synchronizing encrypted protocols.
-            <br />
-            Estimated latency: 1–2 minutes.
-          </p>
-        </div>
-      )}
     </div>
   );
 }
