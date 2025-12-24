@@ -1,6 +1,10 @@
 import { auth } from "../auth/firebase";
 
-const API_BASE = import.meta.env.VITE_ORBMEM_API_BASE;
+/**
+ * 🔥 SINGLE SOURCE OF TRUTH
+ * DO NOT use .env for v1
+ */
+const API_BASE = "https://orbmem.onrender.com/v1";
 
 /**
  * Get Firebase ID token (auto-refreshing)
@@ -10,7 +14,7 @@ async function getFirebaseToken() {
   if (!user) {
     throw new Error("User not logged in");
   }
-  return await user.getIdToken(true);
+  return await user.getIdToken(true); // force refresh
 }
 
 /**
@@ -21,7 +25,6 @@ async function getFirebaseToken() {
 export async function getApiKey() {
   const token = await getFirebaseToken();
 
-  // FIX: Wrapped URL in backticks (``) to use template literal variables
   const res = await fetch(`${API_BASE}/api-keys/me`, {
     headers: {
       "X-Firebase-Token": token,
@@ -36,8 +39,8 @@ export async function getApiKey() {
 
   // backend returns { keys: [...] }
   return Array.isArray(data.keys) && data.keys.length > 0
-  ? data.keys[0]
-  : null;
+    ? data.keys[0]
+    : null;
 }
 
 /**
@@ -48,7 +51,6 @@ export async function getApiKey() {
 export async function regenerateApiKey(plan = "basic") {
   const token = await getFirebaseToken();
 
-  // FIX: Wrapped URL in backticks (``)
   const res = await fetch(`${API_BASE}/api-keys/regenerate`, {
     method: "POST",
     headers: {
@@ -64,7 +66,7 @@ export async function regenerateApiKey(plan = "basic") {
 
   const data = await res.json();
 
-  // 🔐 ONE-TIME STORAGE (used by ApiKeys.jsx)
+  // 🔐 one-time reveal storage
   sessionStorage.setItem("orbmem_new_api_key", data.api_key);
 
   return data;
@@ -72,13 +74,12 @@ export async function regenerateApiKey(plan = "basic") {
 
 /**
  * ================================
- * OPTIONAL: DELETE / REVOKE KEY
+ * REVOKE API KEY
  * ================================
  */
 export async function revokeApiKey() {
   const token = await getFirebaseToken();
 
-  // FIX: Wrapped URL in backticks (``)
   const res = await fetch(`${API_BASE}/api-keys/revoke`, {
     method: "POST",
     headers: {
