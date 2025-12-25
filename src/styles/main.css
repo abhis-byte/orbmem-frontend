@@ -1020,3 +1020,29 @@ button {
   z-index: 999;
   /* ... your existing dropdown styles ... */
 }
+
+/* Landing Logo */
+.landing-logo-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.landing-logo {
+  width: 240px;        /* BIG logo */
+  max-width: 85%;
+  height: auto;
+  animation: logoFade 0.8s ease-in-out;
+}
+
+/* Smooth entrance */
+@keyframes logoFade {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
