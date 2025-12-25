@@ -8,6 +8,16 @@ export default function Landing() {
   return (
     <div className="landing">
       <section className="hero fade-in">
+
+        {/* BIG LOGO */}
+        <div className="landing-logo-wrapper">
+          <img
+            src={orbmemLogo}
+            alt="Orbmem Logo"
+            className="landing-logo"
+          />
+        </div>
+
         <h1>Orbmem</h1>
         <h2 className="tagline">
           The Memory & Reasoning Backend for AI
@@ -32,4 +42,3 @@ export default function Landing() {
     </div>
   );
 }
-
